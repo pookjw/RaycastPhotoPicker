@@ -12,6 +12,7 @@ import Photos
 import os
 import SwiftUI
 
+@MainActor
 fileprivate enum CellLayout {
     /*
      +----------------------------------------------+
@@ -44,13 +45,17 @@ fileprivate enum CellLayout {
     static let containerSize: Float = containerPadding + cellSize * Float(lineCount) + cellPadding * Float(lineCount + 1)
 }
 
+fileprivate struct AssetComponent: Component {
+    let asset: PHAsset
+    let image: UIImage
+}
+
 @MainActor
 final class ViewController: UIViewController {
     private var arView: ARView! { view as? ARView }
     @ViewLoading private var coachingOverlayView: ARCoachingOverlayView
     @ViewLoading private var resetButton: UIButton
-    private var images: [UIImage]?
-    private var assetsFetchResult: PHFetchResult<PHAsset>?
+    private var assetComponents: [AssetComponent]?
     private var resetTask: Task<Void, Never>?
     
     deinit {
@@ -111,30 +116,15 @@ final class ViewController: UIViewController {
     }
     
     @objc private func tapGestureDidTrigger(_ sender: UITapGestureRecognizer) {
-        guard let assetsFetchResult: PHFetchResult<PHAsset> else {
-            return
-        }
-        
         let arView: ARView = arView
         let location: CGPoint = sender.location(in: arView)
         
-        guard let entity: Entity = arView.entity(at: location) else {
+        guard let entity: Entity = arView.entity(at: location),
+        let assetComponent: AssetComponent = entity.components[AssetComponent.self] as? AssetComponent else {
             return
         }
         
-        let name: String = entity.name
-        
-        var asset: PHAsset?
-        assetsFetchResult.enumerateObjects { _asset, _, stop in
-            if _asset.localIdentifier == name {
-                asset = _asset
-                stop.pointee = true
-            }
-        }
-        
-        guard let asset: PHAsset else { return }
-        
-        let hostingController: UIHostingController = .init(rootView: PHAssetThumbnailView(phAsset: asset, playIfVideoAsset: true))
+        let hostingController: UIHostingController = .init(rootView: PHAssetThumbnailView(phAsset: assetComponent.asset, playIfVideoAsset: true))
         hostingController.safeAreaRegions = []
         present(hostingController, animated: true)
     }
@@ -166,97 +156,46 @@ final class ViewController: UIViewController {
             
             let assetsFetchResult: PHFetchResult<PHAsset> = PHAsset.fetchAssets(in: recentlyAddedCollection, options: fetchOptions)
             
-            let images: [UIImage] = try! await withThrowingTaskGroup(of: (Int, UIImage).self, returning: [UIImage].self) { group in
-                let imageManager: PHImageManager = .default()
+            let imageRequestOptions: PHImageRequestOptions = .init()
+            imageRequestOptions.allowSecondaryDegradedImage = false
+            imageRequestOptions.deliveryMode = .opportunistic
+            imageRequestOptions.isNetworkAccessAllowed = true
+            
+            let stream = PHImageManager.default().requestImages(for: assetsFetchResult, targetSize: .init(width: 500.0, height: 500.0), contentMode: .aspectFit, options: imageRequestOptions)
+            var results: [Int: AssetComponent] = [:]
+            
+            for await partial in stream {
+                let index: Int = partial.index
+                let asset: PHAsset = partial.asset
+                let result: Result<(image: UIImage, isDegraded: Bool), Error> = partial.result
                 
-                let imageRequestOptions: PHImageRequestOptions = .init()
-                imageRequestOptions.allowSecondaryDegradedImage = false
-                imageRequestOptions.deliveryMode = .opportunistic
-                imageRequestOptions.isNetworkAccessAllowed = true
-                
-                var interator: NSFastEnumerationIterator = .init(assetsFetchResult)
-                var index: Int = .zero
-                
-                while let asset: PHAsset = interator.next() as? PHAsset {
-                    group.addTask { [index] in
-                        let lock: OSAllocatedUnfairLock = .init()
-                        var requestID: PHImageRequestID?
-                        let onCancel: () -> Void = {
-                            lock.lock()
-                            defer { lock.unlock() }
-                            
-                            if let requestID: PHImageRequestID {
-                                imageManager.cancelImageRequest(requestID)
-                            }
-                        }
-                        
-                        return try await withTaskCancellationHandler { 
-                            let image: UIImage = try await withCheckedThrowingContinuation { continuation in
-                                lock.lock()
-                                defer { lock.unlock() }
-                                
-                                guard !Task.isCancelled else {
-                                    continuation.resume(throwing: CancellationError())
-                                    return
-                                }
-                                
-                                requestID = imageManager.requestImage(
-                                    for: asset,
-                                    targetSize: CGSize(width: 1000.0, height: 1000.0),
-                                    contentMode: .aspectFit,
-                                    options: imageRequestOptions,
-                                    resultHandler: { image, userInfo in
-                                        if let userInfo {
-                                            if let error: Error = userInfo[PHImageErrorKey] as? Error {
-                                                continuation.resume(throwing: error)
-                                                return
-                                            } else if let isCancelled: Bool = userInfo[PHImageCancelledKey] as? Bool,
-                                                      isCancelled {
-                                                continuation.resume(throwing: CancellationError())
-                                                return
-                                            } else if let isDegraged: Bool = userInfo[PHImageResultIsDegradedKey] as? Bool,
-                                                      isDegraged {
-                                                return
-                                            }
-                                        }
-                                        
-                                        if let image: UIImage {
-                                            continuation.resume(returning: image)
-                                        }
-                                    }
-                                )
-                            }
-                            
-                            return (index, image)
-                        } onCancel: { 
-                            onCancel()
-                        }
+                switch result {
+                case .success((let image, let isDegraged)):
+                    if !isDegraged {
+                        results[index] = .init(asset: asset, image: image)
                     }
-                    
-                    index += 1
-                }
-                
-                
-                var results: [(Int, UIImage)] = []
-                while let next = try await group.next() {
-                    results.append(next)
-                }
-                
-                return [UIImage].init(unsafeUninitializedCapacity: results.count) { buffer, initializedCount in
-                    let count: Int = results.count
-                    
-                    guard count > .zero else { return }
-                    
-                    for (index, image) in results {
-                        (buffer.baseAddress! + index).initialize(to: image)
-                    }
-                    
-                    initializedCount = results.count
+                case .failure(let error):
+                    print(error)
                 }
             }
             
-            self.images = images
-            self.assetsFetchResult = assetsFetchResult
+            guard !Task.isCancelled else { 
+                return
+            }
+            
+            let assetComponents: [AssetComponent] = .init(unsafeUninitializedCapacity: results.count) { buffer, initializedCount in
+                let count: Int = results.count
+                
+                guard count > .zero else { return }
+                
+                for (index, assetComponent) in results {
+                    (buffer.baseAddress! + index).initialize(to: assetComponent)
+                }
+                
+                initializedCount = results.count
+            }
+            
+            self.assetComponents = assetComponents
             runConfiguration()
         }
     }
@@ -271,8 +210,7 @@ final class ViewController: UIViewController {
 extension ViewController: ARSessionDelegate {
     func session(_ session: ARSession, didUpdate frame: ARFrame) {
         guard !frame.anchors.contains(where: { $0.name == "ContainerAnchor" }) else { return }
-        guard let images: [UIImage],
-        let assetsFetchResult: PHFetchResult<PHAsset> else { 
+        guard let assetComponents: [AssetComponent] else { 
             return
         }
         
@@ -300,15 +238,17 @@ extension ViewController: ARSessionDelegate {
         )
         containerEntity.name = "ContainerEntity"
         
-        for (index, image) in images.enumerated() {
-            let asset: PHAsset = assetsFetchResult[index]
-            let texture: TextureResource = try! .generate(from: image.cgImage!, withName: asset.localIdentifier, options: .init(semantic: .hdrColor))
+        for (index, assetComponent) in assetComponents.enumerated() {
+            guard let cgImage: CGImage = assetComponent.image.cgImage else { continue }
+            
+            let texture: TextureResource = try! .generate(from: cgImage, options: .init(semantic: .hdrColor))
             
             var material: UnlitMaterial = .init()
             material.color = .init(tint: .white, texture: .init(texture))
             
             let entity: ModelEntity = .init(mesh: .generatePlane(width: 0.1, depth: 0.1), materials: [material])
-            entity.name = asset.localIdentifier
+            entity.name = assetComponent.asset.localIdentifier
+            entity.components[AssetComponent.self] = assetComponent
             
             // https://stackoverflow.com/a/65847268/17473716
             entity.generateCollisionShapes(recursive: false)
@@ -323,7 +263,7 @@ extension ViewController: ARSessionDelegate {
         anchorEntity.addChild(containerEntity, preservingWorldTransform: true)
         
         arView.scene.addAnchor(anchorEntity)
-        self.images = nil
+        self.assetComponents = nil
     }
     
     func session(_ session: ARSession, didAdd anchors: [ARAnchor]) {

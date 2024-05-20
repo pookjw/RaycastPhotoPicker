@@ -13,6 +13,7 @@
 		4F3ABEB02BF90FCF000C32CD /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 4F3ABEAF2BF90FCF000C32CD /* Assets.xcassets */; };
 		4F3ABEB32BF90FCF000C32CD /* Base in Resources */ = {isa = PBXBuildFile; fileRef = 4F3ABEB22BF90FCF000C32CD /* Base */; };
 		4F95D7462BFA457C004DBDE9 /* PHAssetThumbnailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F95D7452BFA457C004DBDE9 /* PHAssetThumbnailView.swift */; };
+		4FE09CDA2BFB146800437EE1 /* PHImageManager+Async.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FE09CD92BFB146800437EE1 /* PHImageManager+Async.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -24,6 +25,7 @@
 		4F3ABEB22BF90FCF000C32CD /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		4F3ABEB42BF90FCF000C32CD /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		4F95D7452BFA457C004DBDE9 /* PHAssetThumbnailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PHAssetThumbnailView.swift; sourceTree = "<group>"; };
+		4FE09CD92BFB146800437EE1 /* PHImageManager+Async.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "PHImageManager+Async.swift"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -60,6 +62,7 @@
 				4F3ABEA82BF90FCE000C32CD /* SceneDelegate.swift */,
 				4F3ABEAA2BF90FCE000C32CD /* ViewController.swift */,
 				4F95D7452BFA457C004DBDE9 /* PHAssetThumbnailView.swift */,
+				4FE09CD92BFB146800437EE1 /* PHImageManager+Async.swift */,
 				4F3ABEAF2BF90FCF000C32CD /* Assets.xcassets */,
 				4F3ABEB12BF90FCF000C32CD /* LaunchScreen.storyboard */,
 				4F3ABEB42BF90FCF000C32CD /* Info.plist */,
@@ -137,6 +140,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4FE09CDA2BFB146800437EE1 /* PHImageManager+Async.swift in Sources */,
 				4F95D7462BFA457C004DBDE9 /* PHAssetThumbnailView.swift in Sources */,
 				4F3ABEAB2BF90FCE000C32CD /* ViewController.swift in Sources */,
 				4F3ABEA72BF90FCE000C32CD /* AppDelegate.swift in Sources */,
@@ -218,6 +222,7 @@
 				SDKROOT = iphoneos;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_STRICT_CONCURRENCY = complete;
 			};
 			name = Debug;
 		};
@@ -273,6 +278,7 @@
 				MTL_FAST_MATH = YES;
 				SDKROOT = iphoneos;
 				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_STRICT_CONCURRENCY = complete;
 				VALIDATE_PRODUCT = YES;
 			};
 			name = Release;
