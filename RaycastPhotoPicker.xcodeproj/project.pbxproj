@@ -14,6 +14,7 @@
 		4F3ABEB32BF90FCF000C32CD /* Base in Resources */ = {isa = PBXBuildFile; fileRef = 4F3ABEB22BF90FCF000C32CD /* Base */; };
 		4F95D7462BFA457C004DBDE9 /* PHAssetThumbnailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F95D7452BFA457C004DBDE9 /* PHAssetThumbnailView.swift */; };
 		4FE09CDA2BFB146800437EE1 /* PHImageManager+Async.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FE09CD92BFB146800437EE1 /* PHImageManager+Async.swift */; };
+		4FE09D602BFCB6AE00437EE1 /* MyObject.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FE09D5F2BFCB6AE00437EE1 /* MyObject.mm */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -26,6 +27,9 @@
 		4F3ABEB42BF90FCF000C32CD /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		4F95D7452BFA457C004DBDE9 /* PHAssetThumbnailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PHAssetThumbnailView.swift; sourceTree = "<group>"; };
 		4FE09CD92BFB146800437EE1 /* PHImageManager+Async.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "PHImageManager+Async.swift"; sourceTree = "<group>"; };
+		4FE09D5D2BFCB6AD00437EE1 /* RaycastPhotoPicker-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "RaycastPhotoPicker-Bridging-Header.h"; sourceTree = "<group>"; };
+		4FE09D5E2BFCB6AE00437EE1 /* MyObject.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MyObject.h; sourceTree = "<group>"; };
+		4FE09D5F2BFCB6AE00437EE1 /* MyObject.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = MyObject.mm; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -66,6 +70,9 @@
 				4F3ABEAF2BF90FCF000C32CD /* Assets.xcassets */,
 				4F3ABEB12BF90FCF000C32CD /* LaunchScreen.storyboard */,
 				4F3ABEB42BF90FCF000C32CD /* Info.plist */,
+				4FE09D5E2BFCB6AE00437EE1 /* MyObject.h */,
+				4FE09D5F2BFCB6AE00437EE1 /* MyObject.mm */,
+				4FE09D5D2BFCB6AD00437EE1 /* RaycastPhotoPicker-Bridging-Header.h */,
 			);
 			path = RaycastPhotoPicker;
 			sourceTree = "<group>";
@@ -102,6 +109,7 @@
 				TargetAttributes = {
 					4F3ABEA22BF90FCE000C32CD = {
 						CreatedOnToolsVersion = 15.4;
+						LastSwiftMigration = 1540;
 					};
 				};
 			};
@@ -143,6 +151,7 @@
 				4FE09CDA2BFB146800437EE1 /* PHImageManager+Async.swift in Sources */,
 				4F95D7462BFA457C004DBDE9 /* PHAssetThumbnailView.swift in Sources */,
 				4F3ABEAB2BF90FCE000C32CD /* ViewController.swift in Sources */,
+				4FE09D602BFCB6AE00437EE1 /* MyObject.mm in Sources */,
 				4F3ABEA72BF90FCE000C32CD /* AppDelegate.swift in Sources */,
 				4F3ABEA92BF90FCE000C32CD /* SceneDelegate.swift in Sources */,
 			);
@@ -214,7 +223,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 17.5;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.2;
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
@@ -272,7 +281,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 17.5;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.2;
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
@@ -288,12 +297,14 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = P53D29U9LJ;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = RaycastPhotoPicker/Info.plist;
 				INFOPLIST_KEY_NSCameraUsageDescription = Hello;
+				INFOPLIST_KEY_NSLocalNetworkUsageDescription = Hello;
 				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = Hello;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
@@ -308,6 +319,8 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.pookjw.RaycastPhotoPicker;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_OBJC_BRIDGING_HEADER = "RaycastPhotoPicker/RaycastPhotoPicker-Bridging-Header.h";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
@@ -318,12 +331,14 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = P53D29U9LJ;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = RaycastPhotoPicker/Info.plist;
 				INFOPLIST_KEY_NSCameraUsageDescription = Hello;
+				INFOPLIST_KEY_NSLocalNetworkUsageDescription = Hello;
 				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = Hello;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
@@ -338,6 +353,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.pookjw.RaycastPhotoPicker;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_OBJC_BRIDGING_HEADER = "RaycastPhotoPicker/RaycastPhotoPicker-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
